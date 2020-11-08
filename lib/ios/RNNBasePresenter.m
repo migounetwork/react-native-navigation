@@ -5,7 +5,9 @@
 #import "UIViewController+LayoutProtocol.h"
 #import "DotIndicatorOptions.h"
 
-@implementation RNNBasePresenter
+@implementation RNNBasePresenter {
+    BOOL _prefersHomeIndicatorAutoHidden;
+}
 
 - (instancetype)initWithDefaultOptions:(RNNNavigationOptions *)defaultOptions {
     self = [super init];
@@ -22,6 +24,8 @@
 - (void)bindViewController:(UIViewController *)boundViewController {
     self.boundComponentId = boundViewController.layoutInfo.componentId;
     _boundViewController = boundViewController;
+    RNNNavigationOptions *withDefault = (RNNNavigationOptions *)[self.boundViewController.resolveOptions withDefault:self.defaultOptions];
+    _prefersHomeIndicatorAutoHidden = [withDefault.layout.autoHideHomeIndicator getWithDefaultValue:NO];
 }
 
 - (void)setDefaultOptions:(RNNNavigationOptions *)defaultOptions {
@@ -76,6 +80,11 @@
     if (options.statusBar.visible.hasValue) {
         [self.boundViewController setNeedsStatusBarAppearanceUpdate];
     }
+
+    if (options.layout.autoHideHomeIndicator.hasValue && options.layout.autoHideHomeIndicator.get != _prefersHomeIndicatorAutoHidden) {
+        _prefersHomeIndicatorAutoHidden = options.layout.autoHideHomeIndicator.get;
+        [self.boundViewController setNeedsUpdateOfHomeIndicatorAutoHidden];
+    }
 }
 
 - (void)renderComponents:(RNNNavigationOptions *)options perform:(RNNReactViewReadyCompletionBlock)readyBlock {
@@ -126,6 +135,10 @@
 - (BOOL)hidesBottomBarWhenPushed {
     RNNNavigationOptions *withDefault = (RNNNavigationOptions *)[self.boundViewController.topMostViewController.resolveOptions withDefault:self.defaultOptions];
     return ![withDefault.bottomTabs.visible getWithDefaultValue:YES];
+}
+
+- (BOOL)prefersHomeIndicatorAutoHidden {
+    return _prefersHomeIndicatorAutoHidden;
 }
 
 @end

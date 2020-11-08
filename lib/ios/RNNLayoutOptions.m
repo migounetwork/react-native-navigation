@@ -11,7 +11,7 @@
     self.componentBackgroundColor = [ColorParser parse:dict key:@"componentBackgroundColor"];
 	self.direction = [TextParser parse:dict key:@"direction"];
 	self.orientation = dict[@"orientation"];
-
+    self.autoHideHomeIndicator = [BoolParser parse:dict key:@"autoHideHomeIndicator"];
 	return self;
 }
 
